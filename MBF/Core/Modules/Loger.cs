@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace MBF.Core.Config
+namespace MBF.Core.Modules
 {
     class Loger
     {
@@ -29,29 +27,28 @@ namespace MBF.Core.Config
 
         public static void Update()
         {
+            // проверка наличия файлов и папки
             if (!Directory.Exists(Path)) Directory.CreateDirectory(Path);
-            if (!File.Exists(Path + FileNameLog)) File.Create(Path + FileNameLog);
-            if (!File.Exists(AppDomain.CurrentDomain.BaseDirectory + FileNameSucc)) File.Create(AppDomain.CurrentDomain.BaseDirectory + FileNameSucc);
-
-            try
+            if (!File.Exists(Path + FileNameLog)) File.Create(Path + FileNameLog).Close();
+            if (!File.Exists(AppDomain.CurrentDomain.BaseDirectory + FileNameSucc)) File.Create(AppDomain.CurrentDomain.BaseDirectory + FileNameSucc).Close();
+            
+            if (Logs.Count > 0)
             {
                 using (var sw = File.AppendText(Path + FileNameLog))
                 {
-                    sw.WriteLine(string.Format("[{0}] {1}", DateTime.Now.ToString(), Logs[0]));
+                    sw.WriteLine(format: "[{0}] {1}", DateTime.Now.ToString(CultureInfo.CurrentCulture), Logs[0]);
                     Logs.Remove(Logs[0]);
                 }
             }
-            catch { }
-
-            try
+            
+            if(LogsSucc.Count > 0)
             {
                 using(var sw = File.AppendText(AppDomain.CurrentDomain.BaseDirectory + FileNameSucc))
                 {
-                    sw.WriteLine(string.Format("[{0}] {1}", DateTime.Now.ToString(), LogsSucc[0]));
+                    sw.WriteLine("[{0}] {1}", DateTime.Now.ToString(CultureInfo.CurrentCulture), LogsSucc[0]);
                     LogsSucc.Remove(LogsSucc[0]);
                 }
             }
-            catch { }
         }
     }
 }

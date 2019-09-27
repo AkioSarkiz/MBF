@@ -1,12 +1,11 @@
 ﻿using MBF.Core.Config;
+using MBF.Core.Modules;
+using MBF.Properties;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Globalization;
 using System.Net;
 using System.Net.Http;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace MBF.Core.Request
 {
@@ -41,22 +40,32 @@ namespace MBF.Core.Request
         /// <param name="login"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public PostPage Init(String adress = AppSettings.DefaultHost, int port = AppSettings.DefaultPort)
+        public PostPage Init(WebProxy proxy)
         {
-            #if DEBUG
-                Console.WriteLine("[PostPage.cs] Proxy: {0}:{1}", adress, port.ToString());
-            #endif
-            Proxy = new WebProxy(adress, port);
+            Proxy = (AppSettings.USE_PROXY) ? proxy : null;
             return this;
         }
 
-        public async Task<HttpResponseMessage> GetContent(Dictionary<string, string> cookies, string _token, string login, string password)
+        /// <summary>
+        /// Инициализация объекта
+        /// </summary>
+        /// <returns></returns>
+        public PostPage Init()
         {
+            #if DEBUG
+                Console.WriteLine(Resources.Log7, AppSettings.DefaultHost, AppSettings.DefaultPort.ToString(CultureInfo.CurrentCulture), AppSettings.USE_PROXY.ToString(CultureInfo.CurrentCulture));
+            #endif
+            Proxy = (AppSettings.USE_PROXY) ? new WebProxy(AppSettings.DefaultHost, AppSettings.DefaultPort) : null;
+            return this;
+        }
 
+
+        public HttpResponseMessage GetContent(Dictionary<string, string> cookies, string _token, string login, string password)
+        {
             var cookieContainer = new CookieContainer();
             using (var handler = new HttpClientHandler()
             {
-                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
+                //AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.None,
                 CookieContainer = cookieContainer,
                 Proxy = Proxy
             })
@@ -81,8 +90,9 @@ namespace MBF.Core.Request
                     new KeyValuePair<string, string>("password", password),
                     new KeyValuePair<string, string>("_token", _token)
                 });
+
                 #if DEBUG
-                    Console.WriteLine("[PostPage.cs] Post data: email: {0}\tpassword: {1}\t _token: {2}", login, password, _token);
+                    Console.WriteLine(Resources.Log8, login, password, _token);
                 #endif
 
 
@@ -91,20 +101,26 @@ namespace MBF.Core.Request
                 {
                     cookieContainer.Add(new Uri(BaseUrl), new Cookie(obj.Key, obj.Value));
                     #if DEBUG
-                        Console.Write("[PostPage.cs] Cokie name: {0}\n[PostPage.cs] Cookie value: {1}\n\n", obj.Key, obj.Value);
+                        Console.Write(Resources.Log9, obj.Key, obj.Value);
                     #endif
                 }
 
                 // запрос
-                HttpResponseMessage response = client.PostAsync(RequestUrl, postData).Result;
-                Content = response.Content.ReadAsStringAsync().Result;
+                HttpResponseMessage response = client.PostAsync(new Uri(RequestUrl), postData).Result;
 
-                foreach (var b in response.Content.ReadAsByteArrayAsync().Result)
-                    Console.Write(b + " ");
+                TreatmentPostData treatment = new TreatmentPostData(response);
 
-                #if DEBUG
-                    Console.WriteLine("[PostPage.cs] Content: {0}",response.Content.ReadAsStringAsync().Result);
-                #endif
+                if (treatment.Tests())
+                {
+                    Loger.AddSuccess(string.Format(CultureInfo.CurrentCulture, "{0}, {1}", login, password));
+                    #if !DEBUG
+                        Console.Write("Login: " + login + ";\tPassword: " + password + "\tStatus: OK");
+                    #endif
+                }
+                Console.WriteLine("Login: " + login + ";\tPassword: " + password + "\tStatus: NOT");
+                Loger.AddLog(string.Format(CultureInfo.CurrentCulture, "{0}, {1}", login, password));
+
+                postData.Dispose();
                 return response;
             }
         }

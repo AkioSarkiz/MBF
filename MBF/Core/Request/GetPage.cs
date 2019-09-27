@@ -1,12 +1,11 @@
 ﻿using MBF.Core.Config;
+using MBF.Properties;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Globalization;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace MBF.Core.Request
 {
@@ -56,12 +55,22 @@ namespace MBF.Core.Request
         /// <param name="login"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public GetPage Init(String adress = AppSettings.DefaultHost, int port = AppSettings.DefaultPort)
+        public GetPage Init(WebProxy proxy)
+        {
+            Proxy = (AppSettings.USE_PROXY) ? proxy : null;
+            return this;
+        }
+
+        /// <summary>
+        /// Инициализация объекта
+        /// </summary>
+        /// <returns></returns>
+        public GetPage Init()
         {
             #if DEBUG
-                Console.WriteLine("[GetPage.cs] Proxy: {0}:{1}", adress, port.ToString());
+                Console.WriteLine(Resources.Log3, AppSettings.DefaultHost, AppSettings.DefaultPort.ToString(CultureInfo.CurrentCulture), AppSettings.USE_PROXY.ToString(CultureInfo.CurrentCulture));
             #endif
-            Proxy = new WebProxy(adress, port);
+            Proxy = (AppSettings.USE_PROXY) ? new WebProxy(AppSettings.DefaultHost, AppSettings.DefaultPort) : null;
             return this;
         }
 
@@ -69,7 +78,7 @@ namespace MBF.Core.Request
         /// Получение данных со страницы
         /// </summary>
         /// <returns></returns>
-        public async Task<GetPage> GetContent()
+        public GetPage GetContent()
         {
             
             var cookieContainer = new CookieContainer();
@@ -80,7 +89,7 @@ namespace MBF.Core.Request
             using (var client = new HttpClient(handler))
             {
                 // запрос
-                var response = await client.GetAsync(this.RequestUrl);
+                var response = client.GetAsync(new Uri(RequestUrl)).Result;
 
                 // Исключение если не удастся
                 response.EnsureSuccessStatusCode();
@@ -88,17 +97,17 @@ namespace MBF.Core.Request
                 // получения контента страницы
                 if (LoadContentPage)
                 {
-                    this.Content = await response.Content.ReadAsStringAsync();
+                    this.Content = response.Content.ReadAsStringAsync().Result;
                     #if DEBUG
-                        Console.WriteLine("[GetPage.cs] Content: {0}", this.Content);
+                        Console.WriteLine(Resources.Log4, Content);
                     #endif
                 }
                     
 
                 // получение токена
-                this.Token = new Regex("<meta name=\"_token\"\\s+content=\"[^\"]*").Match(await response.Content.ReadAsStringAsync()).ToString().Substring(29);
+                this.Token = new Regex("<meta name=\"_token\"\\s+content=\"[^\"]*").Match(response.Content.ReadAsStringAsync().Result).ToString().Substring(29);
                 #if DEBUG
-                    Console.WriteLine("[GetPage.cs] Token: {0}", this.Token);
+                    Console.WriteLine(Resources.Log5, Token);
                 #endif
 
                 /**************************************
@@ -111,7 +120,7 @@ namespace MBF.Core.Request
                 {
                     Cookies.Add(cookie.Name, cookie.Value);
                     #if DEBUG
-                        Console.WriteLine("[GetPage.cs] {0}: {1}", cookie.Name, cookie.Value);
+                        Console.WriteLine(Resources.Log1, cookie.Name, cookie.Value);
                     #endif
                 }    
             }

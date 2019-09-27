@@ -1,13 +1,10 @@
 ﻿using MBF.Core.Config;
+using MBF.Properties;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace MBF.Core.Request
+namespace MBF.Core.Modules
 {
 
     /// <summary>
@@ -41,14 +38,25 @@ namespace MBF.Core.Request
         /// <param name="responseMessage">Ответ который нужно будет обрабатывать</param>
         public TreatmentPostData(HttpResponseMessage responseMessage)
         {
-            Task.Run(async () => this.Content = await responseMessage.Content.ReadAsStringAsync());
+            this.Content = responseMessage.Content.ReadAsStringAsync().Result;
             this.Code = (int)responseMessage.StatusCode;
             this.ResponseMessage = responseMessage;
         }
 
-        public bool Test()
+        public bool Tests()
         {
+            //if (AppSettings.TestInvalidTemplate)
 
+            #if DEBUG
+                Console.WriteLine("\n" + Resources.Log10, this.ResponseMessage.RequestMessage.RequestUri.ToString());
+            #endif
+
+          
+
+            if (AppSettings.TestRedirect)
+                if (this.ResponseMessage.RequestMessage.RequestUri.ToString().Equals(AppSettings.SuccessRedirect, StringComparison.CurrentCultureIgnoreCase))
+                    return true;
+            
             return false;
         }
     }

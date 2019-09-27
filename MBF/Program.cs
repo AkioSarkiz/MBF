@@ -1,10 +1,10 @@
 ﻿using MBF.Core.Config;
+using MBF.Core.Modules;
 using MBF.Core.Request;
 using MBF.Properties;
 using System;
 using System.IO;
 using System.Net;
-using System.Text.RegularExpressions;
 using System.Threading;
 
 namespace MBF
@@ -20,36 +20,39 @@ namespace MBF
         /// <param name="args">аргументы команднной строки</param>
         static void Main(string[] args)
         {
+            // Проверка и иницализация космпонентов
             if (!Init()) Environment.Exit(-1);
+            InitThread();
+            AppSettings.Init();
+            TestArgs(args);
 
+            // Настройки cmd
             ServicePointManager.DefaultConnectionLimit = int.MaxValue;
             Console.Title = "My Brute Force";
             Console.BackgroundColor = ConsoleColor.White;
             Console.ForegroundColor = ConsoleColor.Black;
 
-            // Поток для обновления логов
-            Thread logsThread = new Thread(() =>
+
+            while (AppSettings.Run)
             {
-                while (true)
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("123");
+                Console.ForegroundColor = ConsoleColor.Black;
+
+                // поток запроса
+                Thread requestThread = new Thread(() =>
                 {
-                    Loger.Update();
-                }
-            });
-            logsThread.Name = "logsThread";
-            logsThread.Priority = ThreadPriority.Highest;
-            logsThread.Start(); 
+                    GetPage getPage = new GetPage();
+                    getPage.Init(Reader.GetProxy()).GetContent();
 
-            // поток запроса
-            Thread requestThread = new Thread(() =>
-            {
-                GetPage getPage = new GetPage();
-                getPage.Init().GetContent().Wait();
+                    PostPage postPage = new PostPage();
+                    postPage.Init(Reader.GetProxy()).GetContent(getPage.Cookies, getPage.Token, AppSettings.Login, Reader.GetPassword());
+                });
+                requestThread.Priority = ThreadPriority.Highest;
+                requestThread.Start();
 
-                PostPage postPage = new PostPage();
-                postPage.Init().GetContent(getPage.Cookies, getPage.Token, "user", "user").Wait();
-            });
-            requestThread.Priority = ThreadPriority.Highest;
-            requestThread.Start();
+                Thread.Sleep(AppSettings.Delay);
+            }
 
             Console.Read();
         }
@@ -57,7 +60,7 @@ namespace MBF
         /// <summary>
         /// Создает папки по-умолчанию если их почему-то нет
         /// </summary>
-        public static bool Init()
+        private static bool Init()
         {
             bool result = true;
             string self = AppDomain.CurrentDomain.BaseDirectory;
@@ -87,6 +90,47 @@ namespace MBF
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Создает базовые потоки приложения
+        /// </summary>
+        public static void InitThread()
+        {
+            // Поток для обновления логов
+            Thread logsThread = new Thread(() =>
+            {
+                while (true)
+                {
+                    Loger.Update();
+                }
+            });
+            logsThread.Name = "logsThread";
+            logsThread.Priority = ThreadPriority.Highest;
+            logsThread.Start();
+        }
+
+        /// <summary>
+        /// Проверка аргементов командной строки
+        /// </summary>
+        /// <param name="args">аргументы</param>
+        private static void TestArgs(string[] args)
+        {
+            if (args.Length > 0 && args[0].Equals("show-me", StringComparison.CurrentCulture))
+            {
+                char endl = '\n';
+                Console.WriteLine(
+                    "Login: " + AppSettings.Login + endl +
+                    "BaseUrl: " + AppSettings.BaseUrl + endl +
+                    "RequestUrl: " + AppSettings.RequestUrl + endl +
+                    "SuccessRedirect: " + AppSettings.SuccessRedirect + endl +
+                    "TestInvalidTemplate: " + AppSettings.TestInvalidTemplate + endl +
+                    "TestRedirect: " + AppSettings.TestRedirect + endl +
+                    "USE_PROXY: " + AppSettings.USE_PROXY + endl +
+                    "WRITE_LOGS: " + AppSettings.WRITE_LOGS
+                    );
+                Environment.Exit(0);
+            }
         }
     }
 }

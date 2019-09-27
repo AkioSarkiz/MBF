@@ -1,7 +1,7 @@
 ﻿using MBF.Core.Config;
 using System.IO;
 
-namespace MBF.Core.Request
+namespace MBF.Core.Modules
 {
     class Proxy
     {

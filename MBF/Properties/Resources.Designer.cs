@@ -19,7 +19,7 @@ namespace MBF.Properties {
     // с помощью такого средства, как ResGen или Visual Studio.
     // Чтобы добавить или удалить член, измените файл .ResX и снова запустите ResGen
     // с параметром /str или перестройте свой проект VS.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Resources {
@@ -61,7 +61,150 @@ namespace MBF.Properties {
         }
         
         /// <summary>
-        ///   Ищет локализованную строку, похожую на .
+        ///   Ищет локализованную строку, похожую на [GetPage.cs] {0}: {1}.
+        /// </summary>
+        internal static string Log1 {
+            get {
+                return ResourceManager.GetString("Log1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на [TreatmentPostData.cs] response url: {0}.
+        /// </summary>
+        internal static string Log10 {
+            get {
+                return ResourceManager.GetString("Log10", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на [GetPage.cs] Proxy: {0}:{1}\t[status: {2}].
+        /// </summary>
+        internal static string Log2 {
+            get {
+                return ResourceManager.GetString("Log2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на [GetPage.cs] Proxy: {0}:{1}\t[status: {2}].
+        /// </summary>
+        internal static string Log3 {
+            get {
+                return ResourceManager.GetString("Log3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на [GetPage.cs] Content: {0}.
+        /// </summary>
+        internal static string Log4 {
+            get {
+                return ResourceManager.GetString("Log4", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на [GetPage.cs] Token: {0}.
+        /// </summary>
+        internal static string Log5 {
+            get {
+                return ResourceManager.GetString("Log5", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на [PostPage.cs] Proxy: {0}:{1}\t[status: {2}].
+        /// </summary>
+        internal static string Log6 {
+            get {
+                return ResourceManager.GetString("Log6", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на [PostPage.cs] Proxy: {0}:{1}\t[status: {2}].
+        /// </summary>
+        internal static string Log7 {
+            get {
+                return ResourceManager.GetString("Log7", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на [PostPage.cs] Post data: email: {0}\tpassword: {1}\t _token: {2}.
+        /// </summary>
+        internal static string Log8 {
+            get {
+                return ResourceManager.GetString("Log8", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на [PostPage.cs] Cokie name: {0}\n[PostPage.cs] Cookie value: {1}\n\n.
+        /// </summary>
+        internal static string Log9 {
+            get {
+                return ResourceManager.GetString("Log9", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Ищет локализованную строку, похожую на pinpoint
+        ///petrified
+        ///petite
+        ///persona
+        ///pathological
+        ///passports
+        ///oughtta
+        ///nods
+        ///nighter
+        ///navigate
+        ///nashville
+        ///namely
+        ///museums
+        ///morale
+        ///milwaukee
+        ///meditation
+        ///mathematics
+        ///martin&apos;s
+        ///malta
+        ///logan&apos;s
+        ///latter
+        ///kippie
+        ///jackie&apos;s
+        ///intrigue
+        ///intentional
+        ///insufferable
+        ///incomplete
+        ///inability
+        ///imprisoned
+        ///hup
+        ///hunky
+        ///how&apos;ve
+        ///horrifying
+        ///hearty
+        ///headmaster
+        ///hath
+        ///har
+        ///hank&apos;s
+        ///handbook
+        ///hamptons
+        ///grazie
+        ///goof
+        ///george&apos;s
+        ///funerals
+        ///fuck&apos;s
+        ///fraction
+        ///forks
+        ///finances
+        ///fetched
+        ///excruciating
+        ///enjoyable
+        ///enhanced
+        ///enhance
+        ///endang [остаток строки не уместился]&quot;;.
         /// </summary>
         internal static string Passwords {
             get {
